@@ -158,24 +158,45 @@ public class Bot extends ListenerAdapter {
         }
         if (message.contains(this.BOT_PREFIX + " meme")) { // Fonction permettant de compléter un template
             try {
-                String textes = message.substring(9);
-                String[] split = textes.split(Pattern.quote("|"));
-                String meme = getMeme(split);
-                JSONParser parser = new JSONParser();
-                JSONObject jsonMeme = (JSONObject) (parser.parse(meme));
-                JSONObject un = (JSONObject) jsonMeme.get("data");
-                String deux = (String) un.get("url");
-                event.getChannel().sendMessage(deux).queue();
+                if (message.length() <= 8) {
+                    String memes = getMemeRandom();
+                    JSONParser parser = new JSONParser();
+                    JSONObject jsonMeme = (JSONObject) (parser.parse(memes));
+                    JSONObject memeArray = (JSONObject) jsonMeme.get("data");
+                    JSONArray memeArray2 = (JSONArray) memeArray.get("memes");
+                    JSONObject index = (JSONObject) memeArray2.get(numero);
+                    if (numero == 24) {
+                        numero = 0;
+                    } else {
+                        numero++;
+                    }
+                    event.getChannel().sendMessage((String) (index.get("url"))).queue();
+                } else {
+                    try {
+                        String textes = message.substring(9);
+                        String[] split = textes.split(Pattern.quote("|"));
+                        String meme = getMeme(split);
+                        JSONParser parser = new JSONParser();
+                        JSONObject jsonMeme = (JSONObject) (parser.parse(meme));
+                        JSONObject un = (JSONObject) jsonMeme.get("data");
+                        String deux = (String) un.get("url");
+                        event.getChannel().sendMessage(deux).queue();
+                    } catch (NullPointerException e) {
+                        event.getChannel()
+                                .sendMessage("Une erreur s'est produite, vous etes surs que c'est le bon code?")
+                                .queue();
+                    }
+                }
             } catch (ParseException e) {
                 e.printStackTrace();
-            } catch (NullPointerException e) {
-                event.getChannel().sendMessage("Une erreur s'est produite, vous etes surs que c'est le bon code?")
-                        .queue();
             }
         }
         if (message.contains(this.BOT_PREFIX + " getID")) { // Fonction donnant les ID pour construire les memes
             try {
                 int number = 0;
+                if (memes == "oui") {
+                    memes = getMemeRandom();
+                }
                 JSONParser parser = new JSONParser();
                 JSONObject jsonMeme = (JSONObject) (parser.parse(memes));
                 JSONObject memeArray = (JSONObject) jsonMeme.get("data");
@@ -316,6 +337,27 @@ public class Bot extends ListenerAdapter {
             conn.setRequestProperty("Accept", "application/json");
             if (conn.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code: " + conn);
+            }
+            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+            result = br.lines().collect(Collectors.joining());
+            conn.disconnect();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    static String getMemeRandom() { // Méthode permettant de récupérer un template aléatoire
+        String result = "";
+        try {
+            URL url = new URL("https://api.imgflip.com/get_memes");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code: " + conn.getResponseCode());
             }
             BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
             result = br.lines().collect(Collectors.joining());
