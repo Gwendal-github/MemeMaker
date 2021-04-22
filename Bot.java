@@ -97,7 +97,7 @@ public class Bot extends ListenerAdapter {
             eb.setColor(Color.RED);
             eb.addField("Ping : /MM ping", "Pong (ah ah)", false);
             eb.addField("Dice : /MM dice [max]", "Donne un nombre entre 1 et max, par defaut 6", false);
-            eb.addField("Chat : /MM cat [texte]",
+            eb.addField("Chat : /MM cat [ says [texte]]",
                     "Donne une image de chat. Il peut meme dire un truc avec le parametre texte", false);
             eb.addField("Obtenir les ID de memes : /MM getID", "Donne les ID des templates", false);
             eb.addField("Template de meme : /MM meme [id]",
@@ -243,21 +243,22 @@ public class Bot extends ListenerAdapter {
 
     }
 
-    public static void nasaEmbedBuild(EmbedBuilder eb, JSONObject json) { // Méthode permettant la construction du message
-                                                                      // météo à partir du fichier json récupéré
+    public static void nasaEmbedBuild(EmbedBuilder eb, JSONObject json) { // Méthode permettant la construction du
+                                                                          // message
+        // météo à partir du fichier json récupéré
         eb.setTitle("Picture of the Day");
         eb.setColor(Color.RED);
         eb.setImage((String) json.get("hdurl"));
         String explanation = (String) json.get("explanation");
-        if(explanation.length() < 1024) {
+        if (explanation.length() < 1024) {
             eb.addField("Explication :", explanation, false);
         } else {
             int count = 0;
-            while((count+1)*1024 > explanation.length()) {
-                eb.addField("Explication (Suite) :", explanation.substring(count*1024,(count+1)*1024),false);
+            while ((count + 1) * 1024 > explanation.length()) {
+                eb.addField("Explication (Suite) :", explanation.substring(count * 1024, (count + 1) * 1024), false);
                 count++;
             }
-            
+
         }
 
     }
@@ -328,10 +329,10 @@ public class Bot extends ListenerAdapter {
 
     static String getNasa(String date) { // Méthode récupérant le JSON de l'image du jour de la Nasa
         String result = "";
-        String serv= "https://api.nasa.gov/planetary/apod?api_key="+NasaKey;
+        String serv = "https://api.nasa.gov/planetary/apod?api_key=" + NasaKey;
         try {
-            if(date != "") {
-               serv = serv+"&date="+date   ;
+            if (date != "") {
+                serv = serv + "&date=" + date;
             }
             URL url = new URL(serv);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
