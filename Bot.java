@@ -176,9 +176,6 @@ public class Bot extends ListenerAdapter {
         if (message.contains(this.BOT_PREFIX + " getID")) { // Fonction donnant les ID pour construire les memes
             try {
                 int number = 0;
-                if (memes == "oui") {
-                    memes = getMemeRandom();
-                }
                 JSONParser parser = new JSONParser();
                 JSONObject jsonMeme = (JSONObject) (parser.parse(memes));
                 JSONObject memeArray = (JSONObject) jsonMeme.get("data");
